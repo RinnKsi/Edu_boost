@@ -1,0 +1,734 @@
+<!-- templates/index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Прогноз продуктивности</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: inline-block; width: 200px; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        #result { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Калькулятор продуктивности</h1>
+    
+    <div class="input-group">
+        <label for="sleep">Часы сна (0-24):</label>
+        <input type="number" id="sleep" min="0" max="24" value="7">
+    </div>
+    
+    <div class="input-group">
+        <label for="study">Часы учебы (0-10):</label>
+        <input type="number" id="study" min="0" max="10" step="0.1" value="4.5">
+    </div>
+    
+    <div class="input-group">
+        <label for="max_study">Макс. время учебы (1-10):</label>
+        <input type="number" id="max_study" min="1" max="10" step="0.1" value="6">
+    </div>
+    
+    <div class="input-group">
+        <label for="stress">Уровень стресса (1-5):</label>
+        <input type="number" id="stress" min="1" max="5" value="3">
+    </div>
+    
+    <div class="input-group">
+        <label for="free_time">Свободное время (0-10):</label>
+        <input type="number" id="free_time" min="0" max="10" step="0.1" value="3">
+    </div>
+    
+    <div class="input-group">
+        <label for="mood">Настроение (1-5):</label>
+        <input type="number" id="mood" min="1" max="5" value="4">
+    </div>
+    
+    <div class="input-group">
+        <label for="health">Состояние здоровья (1-5):</label>
+        <input type="number" id="health" min="1" max="5" value="4">
+    </div>
+    
+    <button onclick="getPrediction()">Рассчитать продуктивность</button>
+    
+    <div id="result"></div>
+    
+    <script>
+    async function getPrediction() {
+        const inputData = {
+            sleep: parseFloat(document.getElementById('sleep').value),
+            study: parseFloat(document.getElementById('study').value),
+            max_study: parseFloat(document.getElementById('max_study').value),
+            stress: parseInt(document.getElementById('stress').value),
+            free_time: parseFloat(document.getElementById('free_time').value),
+            mood: parseInt(document.getElementById('mood').value),
+            health: parseInt(document.getElementById('health').value)
+        };
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(inputData)
+            });
+            
+            const result = await response.json();
+            
+            if(result.status === 'success') {
+                document.getElementById('result').innerHTML = `
+                    <h3>Результат:</h3>
+                    <p>Ваша продуктивность: <strong>${result.prediction.toFixed(1)} часов</strong></p>
+                    <p>Из доступных: <strong>${inputData.max_study} часов</strong></p>
+                `;
+            } else {
+                document.getElementById('result').innerHTML = `
+                    <p style="color:red">Ошибка: ${result.error || 'неизвестная ошибка'}</p>
+                `;
+            }
+        } catch (error) {
+            document.getElementById('result').innerHTML = `
+                <p style="color:red">Ошибка соединения: ${error.message}</p>
+            `;
+        }
+    }
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор продуктивности</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .form-container {
+            padding: 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .adhd-toggle {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-right: 15px;
+        }
+        
+        .switch input { display: none; }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--warning);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: var(--secondary);
+        }
+        
+        .result-container {
+            padding: 0 25px 25px;
+            display: none;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .recommendation {
+            background: white;
+            border-left: 4px solid var(--accent);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Калькулятор продуктивности</h1>
+            <p>Учитывает настроение и свободное время</p>
+        </header>
+        
+        <div class="form-container">
+            <div class="input-group">
+                <label for="sleep">Часы сна (4-10)</label>
+                <input type="number" id="sleep" min="4" max="10" step="0.5" value="7">
+            </div>
+            
+            <div class="input-group">
+                <label for="health">Здоровье (1-5)</label>
+                <input type="number" id="health" min="1" max="5" value="4">
+            </div>
+            
+            <div class="input-group">
+                <label for="stress">Стресс (1-5)</label>
+                <input type="number" id="stress" min="1" max="5" value="3">
+            </div>
+            
+            <div class="input-group">
+                <label for="mood">Настроение (1-5)</label>
+                <input type="number" id="mood" min="1" max="5" value="4">
+            </div>
+            
+            <div class="input-group">
+                <label for="free_time">Свободное время (часы)</label>
+                <input type="number" id="free_time" min="0" max="10" step="0.5" value="3.5">
+            </div>
+            
+            <div class="input-group">
+                <label for="study">Часы учебы (0-6)</label>
+                <input type="number" id="study" min="0" max="6" step="0.1" value="3.5">
+            </div>
+            
+            <div class="input-group">
+                <label for="max_study">Макс. время занятий (часы)</label>
+                <input type="number" id="max_study" min="1" max="8" step="0.25" value="6">
+            </div>
+            
+            <div class="adhd-toggle">
+                <label class="switch">
+                    <input type="checkbox" id="adhd">
+                    <span class="slider"></span>
+                </label>
+                <span>Есть СДВГ</span>
+            </div>
+            
+            <button onclick="getPrediction()">Рассчитать</button>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <h2>Результат</h2>
+            <div class="result-box">
+                <div class="result-value" id="result-value">0.0</div>
+                <p style="text-align: center;">часов продуктивной работы</p>
+                
+                <div id="recommendations">
+                    <!-- Рекомендации появятся здесь -->
+                <!-- </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    async function getPrediction() {
+        const button = document.querySelector('button');
+        button.disabled = true;
+        button.textContent = 'Рассчитываем...';
+        
+        const inputData = {
+            sleep: parseFloat(document.getElementById('sleep').value),
+            health: parseInt(document.getElementById('health').value),
+            stress: parseInt(document.getElementById('stress').value),
+            mood: parseInt(document.getElementById('mood').value),
+            free_time: parseFloat(document.getElementById('free_time').value),
+            study: parseFloat(document.getElementById('study').value),
+            max_study: parseFloat(document.getElementById('max_study').value),
+            adhd: document.getElementById('adhd').checked ? 1 : 0
+        };
+        
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(inputData)
+            });
+            
+            const result = await response.json();
+            
+            if(result.status === 'success') {
+                document.getElementById('result-value').textContent = result.prediction;
+                
+                const recContainer = document.getElementById('recommendations');
+                recContainer.innerHTML = '';
+                
+                if(result.recommendations.length > 0) {
+                    result.recommendations.forEach(rec => {
+                        const div = document.createElement('div');
+                        div.className = 'recommendation';
+                        div.textContent = rec;
+                        recContainer.appendChild(div);
+                    });
+                }
+                
+                document.getElementById('result-container').style.display = 'block';
+            } else {
+                alert('Ошибка: ' + (result.error || 'неизвестная ошибка'));
+            }
+        } catch (error) {
+            alert('Ошибка соединения: ' + error.message);
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Рассчитать';
+        }
+    }
+    </script>
+</body>
+</html> --> -->
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор продуктивности</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .form-container {
+            padding: 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .adhd-toggle {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-right: 15px;
+        }
+        
+        .switch input { display: none; }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--warning);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: var(--secondary);
+        }
+        
+        .result-container {
+            padding: 0 25px 25px;
+            display: none;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .recommendation {
+            background: white;
+            border-left: 4px solid var(--accent);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Стили для слайдера настроения */
+        .mood-slider {
+            margin-top: 8px;
+        }
+        
+        .mood-slider input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+        }
+        
+        .mood-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+        
+        #mood-value {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .mood-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Калькулятор продуктивности</h1>
+            <p>Учитывает настроение и свободное время</p>
+        </header>
+        
+        <div class="form-container">
+            <div class="input-group">
+                <label for="sleep">Часы сна (4-10)</label>
+                <input type="number" id="sleep" min="4" max="10" step="0.5" value="7">
+            </div>
+            
+            <div class="input-group">
+                <label for="health">Здоровье (1-5)</label>
+                <input type="number" id="health" min="1" max="5" value="4">
+            </div>
+            
+            <div class="input-group">
+                <label for="stress">Стресс (1-5)</label>
+                <input type="number" id="stress" min="1" max="5" value="3">
+            </div>
+            
+            <div class="input-group">
+                <label for="mood">Настроение (1-5)</label>
+                <div class="mood-slider">
+                    <input type="range" id="mood" min="1" max="5" step="1" value="3" 
+                           oninput="updateMoodValue(this.value)">
+                    <span id="mood-value">3</span>
+                    <div class="mood-labels">
+                        <span>😠</span><span>😞</span><span>😐</span><span>😊</span><span>😁</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="free_time">Свободное время (часы)</label>
+                <input type="number" id="free_time" min="0" max="10" step="0.5" value="3.5">
+            </div>
+            
+            <div class="input-group">
+                <label for="study">Часы учебы (0-6)</label>
+                <input type="number" id="study" min="0" max="6" step="0.1" value="3.5">
+            </div>
+            
+            <div class="input-group">
+                <label for="max_study">Макс. время занятий (часы)</label>
+                <input type="number" id="max_study" min="1" max="8" step="0.25" value="6">
+            </div>
+            
+            <div class="adhd-toggle">
+                <label class="switch">
+                    <input type="checkbox" id="adhd">
+                    <span class="slider"></span>
+                </label>
+                <span>Есть СДВГ</span>
+            </div>
+            
+            <button onclick="getPrediction()">Рассчитать</button>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <h2>Результат</h2>
+            <div class="result-box">
+                <div class="result-value" id="result-value">0.0</div>
+                <p style="text-align: center;">часов продуктивной работы</p>
+                
+                <div id="recommendations">
+                    <!-- Рекомендации появятся здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function updateMoodValue(value) {
+        document.getElementById('mood-value').textContent = value;
+    }
+    
+    async function getPrediction() {
+        const button = document.querySelector('button');
+        button.disabled = true;
+        button.textContent = 'Рассчитываем...';
+        
+        const inputData = {
+            sleep: parseFloat(document.getElementById('sleep').value),
+            health: parseInt(document.getElementById('health').value),
+            stress: parseInt(document.getElementById('stress').value),
+            mood: parseInt(document.getElementById('mood').value),
+            free_time: parseFloat(document.getElementById('free_time').value),
+            study: parseFloat(document.getElementById('study').value),
+            max_study: parseFloat(document.getElementById('max_study').value),
+            adhd: document.getElementById('adhd').checked ? 1 : 0
+        };
+        
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(inputData)
+            });
+            
+            const result = await response.json();
+            
+            if(result.status === 'success') {
+                document.getElementById('result-value').textContent = result.prediction;
+                
+                const recContainer = document.getElementById('recommendations');
+                recContainer.innerHTML = '';
+                
+                if(result.recommendations.length > 0) {
+                    result.recommendations.forEach(rec => {
+                        const div = document.createElement('div');
+                        div.className = 'recommendation';
+                        div.textContent = rec;
+                        recContainer.appendChild(div);
+                    });
+                }
+                
+                document.getElementById('result-container').style.display = 'block';
+            } else {
+                alert('Ошибка: ' + (result.error || 'неизвестная ошибка'));
+            }
+        } catch (error) {
+            alert('Ошибка соединения: ' + error.message);
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Рассчитать';
+        }
+    }
+    </script>
+</body>
+</html>
